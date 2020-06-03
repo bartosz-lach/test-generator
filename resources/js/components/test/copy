@@ -1,0 +1,80 @@
+<template>
+    <div>
+        <input type="text" v-model="test.subject" placeholder="subject">
+        <input type="text" v-model="test.name" placeholder="name">
+        <div v-for="i in questionCounter" :key="i">
+            <input type="text" placeholder="question" v-model="test.questions[i-1].content">
+            <button v-if="questionCounter == i" @click="addQuestion()">Add Question</button>
+            <div v-for="j in answerCounter[i-1]" :key="j">
+                <input type="text" placeholder="answer" v-model="test.questions[i-1].answers[j-1].content">
+                <button v-if="answerCounter[i-1] == j" @click="addAnswer(i-1)">Add Answer</button>
+
+            </div>
+        </div>
+        <button @click="send()">Save</button>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "AddTest",
+        data(){
+            return{
+                questionCounter: 1,
+                answerCounter: [1],
+                requestResponse: {},
+                test:{
+                    name: '',
+                    subject: '',
+                    questions:[{
+                        content:'',
+                        answers: [{
+                            content:'',
+                            is_true:false
+                        }]
+                    }]
+                }
+            }
+        },
+        computed: {
+
+        },
+        methods: {
+            addQuestion(index){
+                // this.test.questions.splice(index,0, {
+                //     content:'',
+                //     answers: [{
+                //         content:'',
+                //         isTrue:false
+                //     }]
+                // });
+                const emptyQuestion = {
+                    content:'',
+                    answers: [{
+                        content: '',
+                        is_true: false
+                    }]
+                };
+                this.test.questions.push(emptyQuestion);
+                this.questionCounter++;
+                this.answerCounter.push(1);
+            },
+            addAnswer(index){
+                window.console.log('index: ', index);
+                this.test.questions[index].answers.push({content: '', is_true:false});
+                this.answerCounter[index]++;
+            },
+            send(){
+                axios.post('/api/tests/full', this.test)
+                // .then(res => this.requestResponse = res.data)
+                    .then(res => window.console.log(res.data))
+                    .catch(error => window.console.log(error.response.data))
+            }
+        }
+
+    }
+</script>
+
+<style scoped>
+
+</style>
